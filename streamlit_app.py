@@ -1,35 +1,48 @@
 import streamlit as st
 import requests
 
+# ---------------- CONFIG ----------------
+
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
 URL = "https://openrouter.ai/api/v1/chat/completions"
 
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
+st.set_page_config(page_title="CrazyCozy AI", page_icon="🤖")
 
 # ---------------- INIT ----------------
 
 if "all_chats" not in st.session_state:
-    st.session_state.all_chats = [{"title": "New Chat", "messages": []}]
+    st.session_state.all_chats = [
+        {"title": "New Chat", "messages": []}
+    ]
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
-# ---------------- FIX OLD DATA ----------------
+# ---------------- EXTRA SAFETY ----------------
 
-for i, chat in enumerate(st.session_state.all_chats):
-    if isinstance(chat, list):
-        st.session_state.all_chats[i] = {
-            "title": "Old Chat",
-            "messages": chat
-        }
+# If all chats deleted
+if len(st.session_state.all_chats) == 0:
+    st.session_state.all_chats.append({
+        "title": "New Chat",
+        "messages": []
+    })
+    st.session_state.current_chat = 0
+
+# Fix index out of range
+if st.session_state.current_chat >= len(st.session_state.all_chats):
+    st.session_state.current_chat = max(
+        0, len(st.session_state.all_chats) - 1
+    )
+
+# ---------------- CURRENT CHAT ----------------
+
+current = st.session_state.all_chats[st.session_state.current_chat]
 
 # ---------------- SIDEBAR ----------------
 
 st.sidebar.title("💬 Chat History")
 
-current = st.session_state.all_chats[st.session_state.current_chat]
-
-# 🔥 UNIQUE KEY FIX (important)
+# ✏️ Edit Title (unique key fix)
 new_title = st.sidebar.text_input(
     "✏️ Edit Title",
     value=current["title"],
@@ -41,7 +54,8 @@ if new_title:
 
 st.sidebar.markdown("---")
 
-# CHAT LIST + DELETE BUTTON
+# ---------------- CHAT LIST ----------------
+
 for i, chat in enumerate(st.session_state.all_chats):
     col1, col2 = st.sidebar.columns([4, 1])
 
@@ -52,11 +66,22 @@ for i, chat in enumerate(st.session_state.all_chats):
     # Open chat
     if col1.button(label, key=f"open_{i}"):
         st.session_state.current_chat = i
+        st.rerun()
 
-    # ❌ Delete specific chat
+    # Delete chat
     if col2.button("❌", key=f"del_{i}"):
         st.session_state.all_chats.pop(i)
-        st.session_state.current_chat = max(0, i - 1)
+
+        # Fix index after delete
+        if len(st.session_state.all_chats) == 0:
+            st.session_state.all_chats.append({
+                "title": "New Chat",
+                "messages": []
+            })
+            st.session_state.current_chat = 0
+        else:
+            st.session_state.current_chat = max(0, i - 1)
+
         st.rerun()
 
 # ---------------- BUTTONS ----------------
@@ -72,13 +97,12 @@ if st.sidebar.button("➕ New Chat"):
     st.rerun()
 
 if st.sidebar.button("🗑 Clear Chat"):
-    st.session_state.all_chats[st.session_state.current_chat]["messages"] = []
+    current["messages"] = []
+    st.rerun()
 
-# ---------------- CURRENT CHAT ----------------
+# ---------------- DISPLAY CHAT ----------------
 
 messages = current["messages"]
-
-# ---------------- DISPLAY ----------------
 
 for msg in messages:
     st.chat_message(msg["role"]).write(msg["content"])
@@ -91,7 +115,7 @@ if user_input:
     st.chat_message("user").write(user_input)
     messages.append({"role": "user", "content": user_input})
 
-    # Auto title fix
+    # Auto title
     if current["title"] == "New Chat":
         current["title"] = user_input[:20]
 
@@ -105,7 +129,7 @@ if user_input:
         "messages": [
             {
                 "role": "system",
-                "content": "You are CrazyCozy AI, a smart and helpful assistant."
+                "content": "You are CrazyCozy AI, a smart, friendly and helpful assistant."
             }
         ] + messages[-5:]
     }
