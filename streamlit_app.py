@@ -8,7 +8,7 @@ URL = "https://openrouter.ai/api/v1/chat/completions"
 
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
 
-st.title("🤖 My AI Chatbot")
+st.title("🚀 CrazyCozy AI Chatbot")
 
 # chat history
 if "messages" not in st.session_state:
