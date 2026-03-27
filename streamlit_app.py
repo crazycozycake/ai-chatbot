@@ -12,7 +12,7 @@ st.title("🚀 CrazyCozy AI Chatbot")
 # -------------------- MULTI CHAT SYSTEM --------------------
 
 if "all_chats" not in st.session_state:
-    st.session_state.all_chats = [[]]
+    st.session_state.all_chats = [{"title": "New Chat", "messages": []}]
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
@@ -22,13 +22,13 @@ if "current_chat" not in st.session_state:
 st.sidebar.title("💬 Chat History")
 
 for i, chat in enumerate(st.session_state.all_chats):
-    label = f"Chat {i+1}"
+    label = chat["title"]
 
-    # Highlight current chat
+    # Highlight active
     if i == st.session_state.current_chat:
         label = "👉 " + label
 
-    if st.sidebar.button(label):
+    if st.sidebar.button(label, key=f"chat_{i}"):
         st.session_state.current_chat = i
 
 # -------------------- BUTTONS --------------------
@@ -38,17 +38,25 @@ col1, col2 = st.columns(2)
 # New Chat
 with col1:
     if st.button("➕ New Chat"):
-        st.session_state.all_chats.append([])
+        st.session_state.all_chats.append({"title": "New Chat", "messages": []})
         st.session_state.current_chat = len(st.session_state.all_chats) - 1
 
-# Clear Current Chat
+# Clear Chat
 with col2:
     if st.button("🗑 Clear Chat"):
-        st.session_state.all_chats[st.session_state.current_chat] = []
+        st.session_state.all_chats[st.session_state.current_chat]["messages"] = []
 
 # -------------------- CURRENT CHAT --------------------
 
-messages = st.session_state.all_chats[st.session_state.current_chat]
+current = st.session_state.all_chats[st.session_state.current_chat]
+messages = current["messages"]
+
+# -------------------- EDIT TITLE --------------------
+
+new_title = st.text_input("✏️ Edit Chat Title", value=current["title"])
+
+if new_title:
+    current["title"] = new_title
 
 # -------------------- DISPLAY CHAT --------------------
 
@@ -62,6 +70,10 @@ user_input = st.chat_input("Type your message...")
 if user_input:
     st.chat_message("user").write(user_input)
     messages.append({"role": "user", "content": user_input})
+
+    # Auto title (first message se)
+    if current["title"] == "New Chat":
+        current["title"] = user_input[:20]
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
