@@ -7,7 +7,6 @@ URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # PAGE CONFIG
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
-st.title("🚀 CrazyCozy AI Chatbot")
 
 # -------------------- INIT --------------------
 
@@ -20,7 +19,7 @@ if "current_chat" not in st.session_state:
 # -------------------- FIX OLD DATA --------------------
 
 for i, chat in enumerate(st.session_state.all_chats):
-    if isinstance(chat, list):  # old format fix
+    if isinstance(chat, list):
         st.session_state.all_chats[i] = {
             "title": "Old Chat",
             "messages": chat
@@ -30,6 +29,18 @@ for i, chat in enumerate(st.session_state.all_chats):
 
 st.sidebar.title("💬 Chat History")
 
+current = st.session_state.all_chats[st.session_state.current_chat]
+
+# ✏️ EDIT TITLE IN SIDEBAR
+st.sidebar.markdown("### ✏️ Edit Title")
+new_title = st.sidebar.text_input("", value=current["title"], key="edit_title")
+
+if new_title:
+    current["title"] = new_title
+
+st.sidebar.markdown("---")
+
+# CHAT LIST
 for i, chat in enumerate(st.session_state.all_chats):
     label = chat["title"]
 
@@ -41,33 +52,21 @@ for i, chat in enumerate(st.session_state.all_chats):
 
 # -------------------- BUTTONS --------------------
 
-col1, col2 = st.columns(2)
+st.sidebar.markdown("---")
 
-# New Chat
-with col1:
-    if st.button("➕ New Chat"):
-        st.session_state.all_chats.append({
-            "title": "New Chat",
-            "messages": []
-        })
-        st.session_state.current_chat = len(st.session_state.all_chats) - 1
+if st.sidebar.button("➕ New Chat"):
+    st.session_state.all_chats.append({
+        "title": "New Chat",
+        "messages": []
+    })
+    st.session_state.current_chat = len(st.session_state.all_chats) - 1
 
-# Clear Chat
-with col2:
-    if st.button("🗑 Clear Chat"):
-        st.session_state.all_chats[st.session_state.current_chat]["messages"] = []
+if st.sidebar.button("🗑 Clear Chat"):
+    st.session_state.all_chats[st.session_state.current_chat]["messages"] = []
 
 # -------------------- CURRENT CHAT --------------------
 
-current = st.session_state.all_chats[st.session_state.current_chat]
 messages = current["messages"]
-
-# -------------------- EDIT TITLE --------------------
-
-new_title = st.text_input("✏️ Edit Chat Title", value=current["title"])
-
-if new_title:
-    current["title"] = new_title
 
 # -------------------- DISPLAY CHAT --------------------
 
