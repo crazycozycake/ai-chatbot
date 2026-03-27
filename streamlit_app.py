@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import speech_recognition as sr
 
 # ---------------- CONFIG ----------------
 
@@ -18,9 +19,8 @@ if "all_chats" not in st.session_state:
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
-# ---------------- EXTRA SAFETY ----------------
+# ---------------- SAFETY FIX ----------------
 
-# If all chats deleted
 if len(st.session_state.all_chats) == 0:
     st.session_state.all_chats.append({
         "title": "New Chat",
@@ -28,13 +28,8 @@ if len(st.session_state.all_chats) == 0:
     })
     st.session_state.current_chat = 0
 
-# Fix index out of range
 if st.session_state.current_chat >= len(st.session_state.all_chats):
-    st.session_state.current_chat = max(
-        0, len(st.session_state.all_chats) - 1
-    )
-
-# ---------------- CURRENT CHAT ----------------
+    st.session_state.current_chat = max(0, len(st.session_state.all_chats) - 1)
 
 current = st.session_state.all_chats[st.session_state.current_chat]
 
@@ -42,7 +37,7 @@ current = st.session_state.all_chats[st.session_state.current_chat]
 
 st.sidebar.title("💬 Chat History")
 
-# ✏️ Edit Title (unique key fix)
+# Edit title
 new_title = st.sidebar.text_input(
     "✏️ Edit Title",
     value=current["title"],
@@ -54,8 +49,7 @@ if new_title:
 
 st.sidebar.markdown("---")
 
-# ---------------- CHAT LIST ----------------
-
+# Chat list + delete
 for i, chat in enumerate(st.session_state.all_chats):
     col1, col2 = st.sidebar.columns([4, 1])
 
@@ -63,16 +57,13 @@ for i, chat in enumerate(st.session_state.all_chats):
     if i == st.session_state.current_chat:
         label = "👉 " + label
 
-    # Open chat
     if col1.button(label, key=f"open_{i}"):
         st.session_state.current_chat = i
         st.rerun()
 
-    # Delete chat
     if col2.button("❌", key=f"del_{i}"):
         st.session_state.all_chats.pop(i)
 
-        # Fix index after delete
         if len(st.session_state.all_chats) == 0:
             st.session_state.all_chats.append({
                 "title": "New Chat",
@@ -84,8 +75,7 @@ for i, chat in enumerate(st.session_state.all_chats):
 
         st.rerun()
 
-# ---------------- BUTTONS ----------------
-
+# Buttons
 st.sidebar.markdown("---")
 
 if st.sidebar.button("➕ New Chat"):
@@ -107,9 +97,34 @@ messages = current["messages"]
 for msg in messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
+# ---------------- 🎤 VOICE INPUT ----------------
+
+st.markdown("### 🎤 Voice Input")
+
+audio_file = st.file_uploader("Upload voice (wav/mp3/m4a)", type=["wav", "mp3", "m4a"])
+
+voice_text = ""
+
+if audio_file is not None:
+    recognizer = sr.Recognizer()
+
+    try:
+        with sr.AudioFile(audio_file) as source:
+            audio_data = recognizer.record(source)
+            voice_text = recognizer.recognize_google(audio_data)
+
+        st.success(f"🗣 You said: {voice_text}")
+
+    except:
+        st.error("⚠️ Could not understand audio")
+
 # ---------------- INPUT ----------------
 
-user_input = st.chat_input("Type your message...")
+typed_input = st.chat_input("Type your message...")
+
+user_input = typed_input if typed_input else voice_text
+
+# ---------------- CHAT LOGIC ----------------
 
 if user_input:
     st.chat_message("user").write(user_input)
