@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
+import os
 
-API_KEY = "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"
+API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 URL = "https://openrouter.ai/api/v1/chat/completions"
 
