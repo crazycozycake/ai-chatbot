@@ -10,6 +10,9 @@ st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
 
 st.title("🚀 CrazyCozy AI Chatbot")
 
+if st.button("🗑 Clear Chat"):
+    st.session_state.messages = []
+    
 # chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
