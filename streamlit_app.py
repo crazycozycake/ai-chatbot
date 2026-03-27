@@ -32,7 +32,9 @@ if user_input:
 
     data = {
         "model": "meta-llama/llama-3-8b-instruct",
-        "messages": st.session_state.messages[-5:]
+        "messages": [
+    {"role": "system", "content": "You are CrazyCozy AI, a smart, friendly and professional assistant. Give clear, helpful and confident answers."}
+] + st.session_state.messages[-5:]
     }
 
     try:
