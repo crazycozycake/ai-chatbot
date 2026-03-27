@@ -9,13 +9,22 @@ URL = "https://openrouter.ai/api/v1/chat/completions"
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
 st.title("🚀 CrazyCozy AI Chatbot")
 
-# -------------------- MULTI CHAT SYSTEM --------------------
+# -------------------- INIT --------------------
 
 if "all_chats" not in st.session_state:
     st.session_state.all_chats = [{"title": "New Chat", "messages": []}]
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
+
+# -------------------- FIX OLD DATA --------------------
+
+for i, chat in enumerate(st.session_state.all_chats):
+    if isinstance(chat, list):  # old format fix
+        st.session_state.all_chats[i] = {
+            "title": "Old Chat",
+            "messages": chat
+        }
 
 # -------------------- SIDEBAR --------------------
 
@@ -24,7 +33,6 @@ st.sidebar.title("💬 Chat History")
 for i, chat in enumerate(st.session_state.all_chats):
     label = chat["title"]
 
-    # Highlight active
     if i == st.session_state.current_chat:
         label = "👉 " + label
 
@@ -38,7 +46,10 @@ col1, col2 = st.columns(2)
 # New Chat
 with col1:
     if st.button("➕ New Chat"):
-        st.session_state.all_chats.append({"title": "New Chat", "messages": []})
+        st.session_state.all_chats.append({
+            "title": "New Chat",
+            "messages": []
+        })
         st.session_state.current_chat = len(st.session_state.all_chats) - 1
 
 # Clear Chat
@@ -71,7 +82,7 @@ if user_input:
     st.chat_message("user").write(user_input)
     messages.append({"role": "user", "content": user_input})
 
-    # Auto title (first message se)
+    # Auto title from first message
     if current["title"] == "New Chat":
         current["title"] = user_input[:20]
 
