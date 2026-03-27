@@ -11,26 +11,43 @@ st.title("🚀 CrazyCozy AI Chatbot")
 
 # -------------------- MULTI CHAT SYSTEM --------------------
 
-# Initialize chat storage
 if "all_chats" not in st.session_state:
     st.session_state.all_chats = [[]]
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
-# Sidebar for chat history
+# -------------------- SIDEBAR --------------------
+
 st.sidebar.title("💬 Chat History")
 
 for i, chat in enumerate(st.session_state.all_chats):
-    if st.sidebar.button(f"Chat {i+1}"):
+    label = f"Chat {i+1}"
+
+    # Highlight current chat
+    if i == st.session_state.current_chat:
+        label = "👉 " + label
+
+    if st.sidebar.button(label):
         st.session_state.current_chat = i
 
-# New chat button
-if st.button("➕ New Chat"):
-    st.session_state.all_chats.append([])
-    st.session_state.current_chat = len(st.session_state.all_chats) - 1
+# -------------------- BUTTONS --------------------
 
-# Current chat messages
+col1, col2 = st.columns(2)
+
+# New Chat
+with col1:
+    if st.button("➕ New Chat"):
+        st.session_state.all_chats.append([])
+        st.session_state.current_chat = len(st.session_state.all_chats) - 1
+
+# Clear Current Chat
+with col2:
+    if st.button("🗑 Clear Chat"):
+        st.session_state.all_chats[st.session_state.current_chat] = []
+
+# -------------------- CURRENT CHAT --------------------
+
 messages = st.session_state.all_chats[st.session_state.current_chat]
 
 # -------------------- DISPLAY CHAT --------------------
@@ -43,28 +60,24 @@ for msg in messages:
 user_input = st.chat_input("Type your message...")
 
 if user_input:
-    # Show user message
     st.chat_message("user").write(user_input)
     messages.append({"role": "user", "content": user_input})
 
-    # Headers
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
 
-    # Data with personality
     data = {
         "model": "meta-llama/llama-3-8b-instruct",
         "messages": [
             {
                 "role": "system",
-                "content": "You are CrazyCozy AI, a smart, friendly and professional assistant. Give clear and helpful answers."
+                "content": "You are CrazyCozy AI, a smart, friendly and professional assistant."
             }
         ] + messages[-5:]
     }
 
-    # API Call
     try:
         with st.spinner("🤖 Thinking..."):
             response = requests.post(URL, headers=headers, json=data)
@@ -78,6 +91,5 @@ if user_input:
     except:
         reply = "⚠️ Network error. Please check your connection."
 
-    # Show bot reply
     st.chat_message("assistant").write(reply)
     messages.append({"role": "assistant", "content": reply})
