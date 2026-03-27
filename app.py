@@ -8,6 +8,9 @@ URL = "https://openrouter.ai/api/v1/chat/completions"
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
 st.title("🤖 My AI Chatbot")
 
+if st.button("🔄 New Chat"):
+    st.session_state.messages = []
+    
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -26,8 +29,8 @@ if user_input:
     }
 
     data = {
-        "model": "meta-llama/llama-3-8b-instruct",
-        "messages": st.session_state.messages
+    "model": "meta-llama/llama-3-8b-instruct",
+    "messages": st.session_state.messages[-5:]   ✅
     }
 
     response = requests.post(URL, headers=headers, json=data)
