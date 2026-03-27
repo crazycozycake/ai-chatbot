@@ -38,9 +38,9 @@ if user_input:
     }
 
     try:
-    with st.spinner("🤖 Thinking..."):
-        response = requests.post(URL, headers=headers, json=data)
-        result = response.json()
+        with st.spinner("🤖 Thinking..."):
+            response = requests.post(URL, headers=headers, json=data)
+            result = response.json()
 
         if "choices" in result:
             reply = result["choices"][0]["message"]["content"]
