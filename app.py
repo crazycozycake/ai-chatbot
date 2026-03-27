@@ -34,9 +34,9 @@ if user_input:
     result = response.json()
 
     if "choices" in result:
-        reply = result["choices"][0]["message"]["content"]
-    else:
-        reply = str(result)
+    reply = result["choices"][0]["message"]["content"]
+else:
+    reply = "⚠️ Something went wrong. Please try again."
 
     st.chat_message("assistant").write(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
