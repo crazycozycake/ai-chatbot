@@ -38,8 +38,8 @@ if user_input:
     }
 
     try:
-        with st.spinner("🤖 Thinking..."):
-    response = requests.post(URL, headers=headers, json=data)
+    with st.spinner("🤖 Thinking..."):
+        response = requests.post(URL, headers=headers, json=data)
         result = response.json()
 
         if "choices" in result:
