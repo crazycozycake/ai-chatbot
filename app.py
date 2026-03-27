@@ -8,7 +8,7 @@ URL = "https://openrouter.ai/api/v1/chat/completions"
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
 st.title("🤖 My AI Chatbot")
 
-st.image("Image1.jpg", width=250)
+st.image("Image.jpg", width=250)
 
 if st.button("🔄 New Chat"):
     st.session_state.messages = []
