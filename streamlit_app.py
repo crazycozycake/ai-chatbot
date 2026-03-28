@@ -20,7 +20,6 @@ if "current_chat" not in st.session_state:
 
 # ---------------- SAFETY ----------------
 
-# Ensure at least one chat exists
 if len(st.session_state.all_chats) == 0:
     st.session_state.all_chats.append({
         "title": "New Chat",
@@ -28,7 +27,6 @@ if len(st.session_state.all_chats) == 0:
     })
     st.session_state.current_chat = 0
 
-# Fix index error
 if st.session_state.current_chat >= len(st.session_state.all_chats):
     st.session_state.current_chat = max(
         0, len(st.session_state.all_chats) - 1
@@ -100,16 +98,9 @@ messages = current["messages"]
 for msg in messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
-# ---------------- VOICE INPUT ----------------
-
-st.markdown("### 🎤 Voice Input")
-voice_text = st.text_input("Tap mic 🎤 on keyboard and speak")
-
 # ---------------- INPUT ----------------
 
-typed_input = st.chat_input("Type your message...")
-
-user_input = typed_input if typed_input else voice_text
+user_input = st.chat_input("Type your message...")
 
 # ---------------- CHAT ----------------
 
