@@ -91,6 +91,11 @@ if st.sidebar.button("🗑 Clear Chat"):
     current["messages"] = []
     st.rerun()
 
+st.markdown(
+    "<h1 style='text-align: center;'>🚀 CrazyCozy AI Chatbot</h1>",
+    unsafe_allow_html=True
+)
+
 # ---------------- DISPLAY ----------------
 
 messages = current["messages"]
